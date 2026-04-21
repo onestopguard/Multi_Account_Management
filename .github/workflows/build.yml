@@ -1,4 +1,4 @@
-name: Build macOS App
+name: Build Windows App
 
 on:
   push:
@@ -7,37 +7,33 @@ on:
 
 jobs:
   build:
-    runs-on: macos-14
+    runs-on: windows-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Node.js
-        run: |
-          brew install node@20
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
-      - name: Install Rust
-        run: |
-          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
 
       - name: Install dependencies
-        working-directory: ${{ github.workspace }}
         run: npm install
 
       - name: Build frontend
-        working-directory: ${{ github.workspace }}
         run: npm run build
 
       - name: Build Tauri
-        working-directory: ${{ github.workspace }}
         run: npm run tauri build
 
-      - name: Find dmg
-        run: find src-tauri/target -name "*.dmg" -type f
+      - name: Find exe
+        run: Get-ChildItem -Path src-tauri/target -Recurse -Filter "*.exe"
 
-      - name: Upload dmg
+      - name: Upload exe
         uses: actions/upload-artifact@v4
         with:
-          name: macos-dmg
-          path: src-tauri/target/release/bundle/macos/*.dmg
+          name: windows-exe
+          path: src-tauri/target/release/*.exe
