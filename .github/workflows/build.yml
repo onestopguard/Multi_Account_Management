@@ -10,6 +10,7 @@ jobs:
     permissions:
       contents: write
     runs-on: windows-latest
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -22,19 +23,26 @@ jobs:
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Add MSVC target
-        run: rustup target add x86_64-pc-windows-msvc
+      - name: Add GNU target
+        run: rustup target add x86_64-pc-windows-gnu
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build frontend
         run: npm run build
 
-      - name: Build Tauri
-        run: npm run tauri build
+      - name: Build Tauri (GNU)
+        run: npm run tauri build -- --target x86_64-pc-windows-gnu
+        env:
+          CARGO_INCREMENTAL: 0
+
+      - name: List output files
+        run: |
+          Get-ChildItem -Path src-tauri/target -Recurse -Filter "*.exe" | Select-Object FullName, Length
 
       - name: Upload artifacts
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: release
