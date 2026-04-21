@@ -7,41 +7,37 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: macos-14
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
+      - name: Install Node.js
+        run: |
+          brew install node@20
 
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          components: rustfmt, clippy
+      - name: Install Rust
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
-      - name: Install npm dependencies
-        run: npm ci
+      - name: Install dependencies
+        working-directory: ${{ github.workspace }}
+        run: npm install
 
       - name: Build frontend
-        run: npm run build || echo "Frontend build failed, trying vite directly"
+        working-directory: ${{ github.workspace }}
+        run: npm run build
 
-      - name: Create icons directory
-        run: mkdir -p src-tauri/icons
+      - name: Build Tauri
+        working-directory: ${{ github.workspace }}
+        run: npm run tauri build
 
-      - name: Build Tauri app
-        run: npm run tauri build 2>&1 || true
+      - name: Find dmg
+        run: find src-tauri/target -name "*.dmg" -type f
 
-      - name: Check for .app bundle
-        run: |
-          find src-tauri/target -name "*.app" -type d 2>/dev/null || echo "No .app bundle found"
-          ls -la src-tauri/target/release/bundle/macos/ 2>/dev/null || echo "No bundle directory"
-
-      - name: Upload artifact
+      - name: Upload dmg
         uses: actions/upload-artifact@v4
         with:
-          name: build-output
-          path: src-tauri/target/release/
+          name: macos-dmg
+          path: src-tauri/target/release/bundle/macos/*.dmg
