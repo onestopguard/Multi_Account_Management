@@ -29,7 +29,16 @@ jobs:
       - name: Build frontend
         run: npm run build
 
-      - name: Build Tauri using tauri-action
-        uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build Tauri binary only
+        run: npm run tauri build -- --bundles none
+
+      - name: List output files
+        run: |
+          Get-ChildItem -Path src-tauri/target/release -Filter "*.exe" | Select-Object FullName, Length
+
+      - name: Upload artifacts
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release
+          path: src-tauri/target/release/*.exe
