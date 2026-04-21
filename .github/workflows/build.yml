@@ -20,10 +20,8 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install xwin
-        uses: typora/xwin@release
-        with:
-          version: latest
+      - name: Install cargo-xwin
+        run: cargo install cargo-xwin
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
@@ -34,8 +32,8 @@ jobs:
       - name: Build frontend
         run: npm run build
 
-      - name: Build Tauri
-        run: npm run tauri build
+      - name: Build Tauri with cargo-xwin
+        run: npm run tauri build -- --runner cargo-xwin --target x86_64-pc-windows-msvc
         env:
           XWIN_ARCH: x64
 
@@ -49,5 +47,5 @@ jobs:
         with:
           name: release
           path: |
-            src-tauri/target/release/*.exe
-            src-tauri/target/release/bundle/nsis/*.exe
+            src-tauri/target/x86_64-pc-windows-msvc/release/*.exe
+            src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe
