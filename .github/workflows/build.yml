@@ -1,4 +1,4 @@
-name: Build and Release
+name: Build Frontend Only
 
 on:
   push:
@@ -6,9 +6,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-macos:
+  build-frontend:
     runs-on: macos-latest
-    timeout-minutes: 30
+    timeout-minutes: 15
     
     steps:
       - name: Checkout code
@@ -19,21 +19,14 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
-
       - name: Install dependencies
         run: npm ci
 
       - name: Build frontend
         run: npm run build
 
-      - name: Build Tauri
-        uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload dist
+        uses: actions/upload-artifact@v4
         with:
-          releaseName: '账号管家公司 {{version}}'
-          releaseBody: '多平台社交媒体账号管理工具'
-          releaseDraft: true
-          prerelease: false
+          name: dist
+          path: dist/
