@@ -22,18 +22,22 @@ jobs:
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
 
+      - name: Add MSVC target
+        run: rustup target add x86_64-pc-windows-msvc
+
       - name: Install dependencies
         run: npm install
 
       - name: Build frontend
         run: npm run build
 
-      - name: Build and release with Tauri
-        uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build Tauri
+        run: npm run tauri build
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
         with:
-          releaseName: '账号管家公司 v{{version}}'
-          releaseBody: 'Windows桌面应用程序'
-          releaseDraft: true
-          prerelease: false
+          name: release
+          path: |
+            src-tauri/target/release/*.exe
+            src-tauri/target/release/bundle/nsis/*.exe
