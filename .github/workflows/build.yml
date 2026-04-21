@@ -8,32 +8,14 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-    timeout-minutes: 30
-    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build frontend
-        run: npm run build
-
-      - name: Build Electron app
-        run: npx electron-builder --win --x64 --dir
-
-      - name: List output files
-        run: dir /s /b release\*.exe 2>nul
-
-      - name: Upload exe
-        if: success()
-        uses: actions/upload-artifact@v4
+      - run: npm install
+      - run: npm run build
+      - uses: actions/upload-artifact@v4
         with:
-          name: windows-exe
-          path: release/win-unpacked/*.exe
+          name: dist
+          path: dist/
