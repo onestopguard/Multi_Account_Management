@@ -20,11 +20,13 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Install xwin
+        uses: typora/xwin@release
+        with:
+          version: latest
+
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
-
-      - name: Add GNU target
-        run: rustup target add x86_64-pc-windows-gnu
 
       - name: Install dependencies
         run: npm ci
@@ -32,10 +34,10 @@ jobs:
       - name: Build frontend
         run: npm run build
 
-      - name: Build Tauri (GNU)
-        run: npm run tauri build -- --target x86_64-pc-windows-gnu
+      - name: Build Tauri
+        run: npm run tauri build
         env:
-          CARGO_INCREMENTAL: 0
+          XWIN_ARCH: x64
 
       - name: List output files
         run: |
