@@ -1,4 +1,4 @@
-name: Build Windows App
+name: Build and Release
 
 on:
   push:
@@ -7,6 +7,8 @@ on:
 
 jobs:
   build:
+    permissions:
+      contents: write
     runs-on: windows-latest
     steps:
       - name: Checkout code
@@ -20,27 +22,18 @@ jobs:
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Add GNU target
-        run: rustup target add x86_64-pc-windows-gnu
-
       - name: Install dependencies
         run: npm install
 
       - name: Build frontend
         run: npm run build
 
-      - name: Build Tauri with GNU
+      - name: Build and release with Tauri
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          args: build --target x86_64-pc-windows-gnu
-
-      - name: Find exe
-        run: Get-ChildItem -Path src-tauri/target -Recurse -Filter "*.exe"
-
-      - name: Upload exe
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-exe
-          path: src-tauri/target/release/*.exe
+          releaseName: '账号管家公司 v{{version}}'
+          releaseBody: 'Windows桌面应用程序'
+          releaseDraft: true
+          prerelease: false
