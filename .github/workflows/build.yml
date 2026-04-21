@@ -1,4 +1,4 @@
-name: Build with Visual Studio
+name: Build with Cache
 
 on:
   push:
@@ -17,12 +17,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
 
-      - name: Install Visual Studio Build Tools
-        uses: jannekem/run-vs-build-tools@v1
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
         with:
-          vs-version: "2022"
-          components: "Microsoft.VisualStudio.Workload.VCTools,Microsoft.VisualStudio.Component.VC.Tools.x86.x64,Microsoft.VisualStudio.Component.Windows11SDK.22621"
+          workspaces: src-tauri
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
@@ -35,7 +35,7 @@ jobs:
 
       - name: Cargo build
         working-directory: src-tauri
-        run: cargo build --release
+        run: cargo build --release -j 1
 
       - name: List output files
         run: |
