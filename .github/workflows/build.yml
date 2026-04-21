@@ -19,21 +19,14 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
-
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Build frontend
         run: npm run build
 
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
       - name: Build Tauri
-        uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          releaseName: '账号管家公司 {{version}}'
-          releaseBody: '多平台社交媒体账号管理工具'
-          releaseDraft: true
-          prerelease: false
+        run: npm run tauri build
