@@ -6,34 +6,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-frontend:
-    runs-on: macos-latest
-    timeout-minutes: 15
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build frontend
-        run: npm run build
-
-      - name: Upload dist
-        uses: actions/upload-artifact@v4
-        with:
-          name: dist
-          path: dist/
-
-  build-tauri:
-    needs: build-frontend
-    runs-on: macos-latest
+  build:
+    runs-on: macos-13
     timeout-minutes: 30
     
     steps:
@@ -53,12 +27,6 @@ jobs:
 
       - name: Build frontend
         run: npm run build
-
-      - name: Download dist
-        uses: actions/download-artifact@v4
-        with:
-          name: dist
-          path: dist/
 
       - name: Build Tauri
         uses: tauri-apps/tauri-action@v0
