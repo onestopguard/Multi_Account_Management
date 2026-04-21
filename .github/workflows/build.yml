@@ -1,4 +1,4 @@
-name: Build with Cache
+name: Build with Specific Rust Version
 
 on:
   push:
@@ -24,8 +24,8 @@ jobs:
         with:
           workspaces: src-tauri
 
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
+      - name: Setup Rust 1.80
+        uses: dtolnay/rust-toolchain@1.80.0
 
       - name: Install dependencies
         run: npm ci
@@ -35,7 +35,7 @@ jobs:
 
       - name: Cargo build
         working-directory: src-tauri
-        run: cargo build --release -j 1
+        run: cargo build --release
 
       - name: List output files
         run: |
