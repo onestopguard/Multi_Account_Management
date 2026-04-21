@@ -1,4 +1,4 @@
-name: Build on Ubuntu
+name: Build on macOS
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     timeout-minutes: 30
     
     steps:
@@ -19,16 +19,10 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install system deps
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y mingw-w64 libwebkit2gtk-4.1-dev
-
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
-
-      - name: Add Windows target
-        run: rustup target add x86_64-pc-windows-gnu
+        with:
+          targets: x86_64-apple-darwin
 
       - name: Install dependencies
         run: npm ci
@@ -37,13 +31,11 @@ jobs:
         run: npm run build
 
       - name: Build Tauri
-        run: |
-          cd src-tauri
-          cargo build --release --target x86_64-pc-windows-gnu
+        run: npm run tauri build
 
       - name: Upload exe
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: windows-exe
-          path: src-tauri/target/x86_64-pc-windows-gnu/release/*.exe
+          name: macos-app
+          path: src-tauri/target/release/*.app
